@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Track" />
+  <title>Track</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --bg2: #111111;
+      --bg3: #1a1a1a;
+      --border: #2a2a2a;
+      --accent: #e8ff47;
+      --accent2: #47ffc8;
+      --text: #f0f0f0;
+      --muted: #666;
+      --red: #ff5c5c;
+      --radius: 16px;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: env(safe-area-inset-top, 20px) 0 env(safe-area-inset-bottom, 20px);
+    }
+
+    /* HEADER */
+    .header {
+      padding: 24px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .header-left h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: var(--text);
+    }
+
+    .date-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .settings-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .settings-btn:active { transform: scale(0.94); }
+
+    /* MAIN SCROLL */
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* METRIC CARD */
+    .metric-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--accent-color, var(--accent));
+      opacity: 0.7;
+    }
+
+    .metric-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    .metric-name {
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .metric-emoji { font-size: 18px; }
+
+    .metric-values {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .metric-current {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1;
+      color: var(--accent-color, var(--accent));
+    }
+
+    .metric-sep {
+      font-size: 18px;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .metric-goal {
+      font-size: 18px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .metric-unit {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: 2px;
+    }
+
+    /* PROGRESS BAR */
+    .progress-track {
+      height: 6px;
+      background: var(--bg3);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--accent-color, var(--accent));
+      transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      max-width: 100%;
+    }
+
+    .progress-pct {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 6px;
+      text-align: right;
+    }
+
+    /* LOG */
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 2px;
+    }
+
+    .log-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .log-item {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .log-time {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    .log-desc {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .log-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .log-vals {
+      text-align: right;
+    }
+
+    .log-cal {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .log-prot {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--accent2);
+    }
+
+    .log-delete {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      transition: color 0.2s;
+    }
+
+    .log-delete:active { color: var(--red); }
+
+    .empty-log {
+      text-align: center;
+      padding: 32px 0;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    /* VOICE BUTTON */
+    .voice-area {
+      padding: 0 24px 24px;
+    }
+
+    .voice-btn {
+      width: 100%;
+      height: 72px;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #0a0a0a;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .voice-btn.listening {
+      background: var(--red);
+      color: white;
+      animation: pulse 1s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 92, 92, 0.4); }
+      50% { box-shadow: 0 0 0 12px rgba(255, 92, 92, 0); }
+    }
+
+    .voice-btn:active { transform: scale(0.97); }
+
+    .mic-icon { font-size: 22px; }
+
+    /* MANUAL INPUT */
+    .manual-area {
+      padding: 0 24px 16px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .manual-input {
+      flex: 1;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .manual-input::placeholder { color: var(--muted); }
+    .manual-input:focus { border-color: var(--accent); }
+
+    .manual-submit {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0 18px;
+      color: var(--accent);
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .manual-submit:active { transform: scale(0.95); }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--text);
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* SETTINGS MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 24px 24px 0 0;
+      padding: 24px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .modal-section {
+      margin-bottom: 20px;
+    }
+
+    .modal-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .goal-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .goal-input {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .goal-input:focus { border-color: var(--accent); }
+
+    .goal-label-text {
+      font-size: 13px;
+      color: var(--muted);
+      width: 80px;
+    }
+
+    .modal-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 12px;
+      border: none;
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .modal-btn-primary { background: var(--accent); color: #0a0a0a; }
+    .modal-btn-danger { background: var(--bg3); color: var(--red); border: 1px solid var(--border); }
+
+    .voice-status {
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      padding: 4px 0 0;
+      min-height: 18px;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>Track.</h1>
+      <div class="date-label" id="dateLabel"></div>
+    </div>
+    <button class="settings-btn" onclick="openSettings()">⚙️</button>
+  </div>
+
+  <div class="scroll-area" id="scrollArea">
+
+    <!-- CALORIES CARD -->
+    <div class="metric-card" style="--accent-color: #e8ff47">
+      <div class="metric-top">
+        <span class="metric-name">Calories</span>
+        <span class="metric-emoji">🔥</span>
+      </div>
+      <div class="metric-values">
+        <span class="metric-current" id="calCurrent">0</span>
+        <span class="metric-sep">/</span>
+        <span class="metric-goal" id="calGoal">3200</span>
+        <span class="metric-unit">kcal</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="calBar" style="width:0%"></div>
+      </div>
+      <div class="progress-pct" id="calPct">0%</div>
+    </div>
+
+    <!-- PROTEIN CARD -->
+    <div class="metric-card" style="--accent-color: #47ffc8">
+      <div class="metric-top">
+        <span class="metric-name">Protein</span>
+        <span class="metric-emoji">💪</span>
+      </div>
+      <div class="metric-values">
+        <span class="metric-current" id="protCurrent">0</span>
+        <span class="metric-sep">/</span>
+        <span class="metric-goal" id="protGoal">190</span>
+        <span class="metric-unit">g</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="protBar" style="width:0%"></div>
+      </div>
+      <div class="progress-pct" id="protPct">0%</div>
+    </div>
+
+    <!-- WATER CARD -->
+    <div class="metric-card" style="--accent-color: #47b8ff">
+      <div class="metric-top">
+        <span class="metric-name">Water</span>
+        <span class="metric-emoji">💧</span>
+      </div>
+      <div class="metric-values">
+        <span class="metric-current" id="waterCurrent">0</span>
+        <span class="metric-sep">/</span>
+        <span class="metric-goal" id="waterGoal">8</span>
+        <span class="metric-unit">glasses</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="waterBar" style="width:0%; background:#47b8ff"></div>
+      </div>
+      <div class="progress-pct" id="waterPct">0%</div>
+    </div>
+
+    <!-- LOG -->
+    <div class="section-label">Today's Log</div>
+    <div class="log-list" id="logList">
+      <div class="empty-log" id="emptyLog">no entries yet</div>
+    </div>
+
+  </div>
+
+  <!-- MANUAL INPUT -->
+  <div class="manual-area">
+    <input class="manual-input" id="manualInput" placeholder="500 cal, 40g protein" />
+    <button class="manual-submit" onclick="parseManual()">Add</button>
+  </div>
+
+  <!-- VOICE BUTTON -->
+  <div class="voice-area">
+    <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
+      <span class="mic-icon">🎙</span>
+      <span id="voiceBtnText">Hold to Speak</span>
+    </button>
+    <div class="voice-status" id="voiceStatus"></div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeSettingsOutside(event)">
+  <div class="modal">
+    <div class="modal-title">Settings</div>
+
+    <div class="modal-section">
+      <div class="modal-label">Daily Goals</div>
+      <div class="goal-row">
+        <span class="goal-label-text">Calories</span>
+        <input class="goal-input" id="settingCal" type="number" placeholder="3200" />
+        <span style="font-family:DM Mono,monospace;font-size:12px;color:var(--muted)">kcal</span>
+      </div>
+      <div class="goal-row">
+        <span class="goal-label-text">Protein</span>
+        <input class="goal-input" id="settingProt" type="number" placeholder="190" />
+        <span style="font-family:DM Mono,monospace;font-size:12px;color:var(--muted)">g</span>
+      </div>
+      <div class="goal-row">
+        <span class="goal-label-text">Water</span>
+        <input class="goal-input" id="settingWater" type="number" placeholder="8" />
+        <span style="font-family:DM Mono,monospace;font-size:12px;color:var(--muted)">glasses</span>
+      </div>
+    </div>
+
+    <button class="modal-btn modal-btn-primary" onclick="saveSettings()">Save Goals</button>
+    <button class="modal-btn modal-btn-danger" onclick="resetDay()">Reset Today</button>
+    <button class="modal-btn" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted)" onclick="closeSettings()">Cancel</button>
+  </div>
+</div>
+
+<script>
+  // STATE
+  let state = {
+    goals: { cal: 3200, prot: 190, water: 8 },
+    totals: { cal: 0, prot: 0, water: 0 },
+    log: [],
+    lastReset: new Date().toDateString()
+  };
+
+  // LOAD
+  function loadState() {
+    const saved = localStorage.getItem('trackState');
+    if (saved) {
+      state = JSON.parse(saved);
+      // Auto reset at midnight
+      if (state.lastReset !== new Date().toDateString()) {
+        state.totals = { cal: 0, prot: 0, water: 0 };
+        state.log = [];
+        state.lastReset = new Date().toDateString();
+        saveState();
+      }
+    }
+  }
+
+  function saveState() {
+    localStorage.setItem('trackState', JSON.stringify(state));
+  }
+
+  // RENDER
+  function render() {
+    // Date
+    document.getElementById('dateLabel').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+    // Calories
+    document.getElementById('calCurrent').textContent = state.totals.cal;
+    document.getElementById('calGoal').textContent = state.goals.cal;
+    const calPct = Math.min(100, Math.round((state.totals.cal / state.goals.cal) * 100));
+    document.getElementById('calBar').style.width = calPct + '%';
+    document.getElementById('calPct').textContent = calPct + '%';
+
+    // Protein
+    document.getElementById('protCurrent').textContent = state.totals.prot;
+    document.getElementById('protGoal').textContent = state.goals.prot;
+    const protPct = Math.min(100, Math.round((state.totals.prot / state.goals.prot) * 100));
+    document.getElementById('protBar').style.width = protPct + '%';
+    document.getElementById('protPct').textContent = protPct + '%';
+
+    // Water
+    document.getElementById('waterCurrent').textContent = state.totals.water;
+    document.getElementById('waterGoal').textContent = state.goals.water;
+    const waterPct = Math.min(100, Math.round((state.totals.water / state.goals.water) * 100));
+    document.getElementById('waterBar').style.width = waterPct + '%';
+    document.getElementById('waterPct').textContent = waterPct + '%';
+
+    // Log
+    const logList = document.getElementById('logList');
+    const emptyLog = document.getElementById('emptyLog');
+    if (state.log.length === 0) {
+      logList.innerHTML = '<div class="empty-log" id="emptyLog">no entries yet</div>';
+    } else {
+      logList.innerHTML = state.log.slice().reverse().map((item, i) => `
+        <div class="log-item">
+          <div>
+            <div class="log-time">${item.time}</div>
+            <div class="log-desc">${item.desc}</div>
+          </div>
+          <div class="log-right">
+            <div class="log-vals">
+              ${item.cal ? `<div class="log-cal">${item.cal} kcal</div>` : ''}
+              ${item.prot ? `<div class="log-prot">${item.prot}g protein</div>` : ''}
+              ${item.water ? `<div class="log-prot" style="color:#47b8ff">${item.water} glass${item.water > 1 ? 'es' : ''}</div>` : ''}
+            </div>
+            <button class="log-delete" onclick="deleteEntry(${state.log.length - 1 - i})">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // ADD ENTRY
+  function addEntry(cal, prot, water, desc) {
+    const now = new Date();
+    const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    state.totals.cal += cal || 0;
+    state.totals.prot += prot || 0;
+    state.totals.water += water || 0;
+    state.log.push({ cal, prot, water, desc, time });
+    saveState();
+    render();
+    showToast(`Added ${cal ? cal + ' cal' : ''}${prot ? ' · ' + prot + 'g protein' : ''}${water ? ' · ' + water + ' water' : ''}`);
+  }
+
+  function deleteEntry(index) {
+    const item = state.log[index];
+    state.totals.cal -= item.cal || 0;
+    state.totals.prot -= item.prot || 0;
+    state.totals.water -= item.water || 0;
+    state.log.splice(index, 1);
+    saveState();
+    render();
+  }
+
+  // PARSE INPUT
+  function parseInput(text) {
+    text = text.toLowerCase().trim();
+    let cal = 0, prot = 0, water = 0;
+
+    // calories: "500 cal", "500 calories", "500kcal"
+    const calMatch = text.match(/(\d+)\s*(cal(?:ories)?|kcal)/i);
+    if (calMatch) cal = parseInt(calMatch[1]);
+
+    // protein: "40g protein", "40 grams protein", "40 protein"
+    const protMatch = text.match(/(\d+)\s*g(?:rams?)?\s*(?:of\s*)?protein/i) || text.match(/(\d+)\s*protein/i);
+    if (protMatch) prot = parseInt(protMatch[1]);
+
+    // water: "2 glasses", "1 glass", "water"
+    const waterMatch = text.match(/(\d+)\s*glass(?:es)?/i);
+    if (waterMatch) water = parseInt(waterMatch[1]);
+    else if (text.includes('water') && !waterMatch) water = 1;
+
+    if (cal || prot || water) {
+      addEntry(cal, prot, water, text.length > 40 ? text.slice(0, 40) + '...' : text);
+      return true;
+    }
+    return false;
+  }
+
+  function parseManual() {
+    const input = document.getElementById('manualInput');
+    const val = input.value.trim();
+    if (!val) return;
+    if (parseInput(val)) {
+      input.value = '';
+    } else {
+      showToast('Try: "500 cal, 40g protein"');
+    }
+  }
+
+  document.getElementById('manualInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') parseManual();
+  });
+
+  // VOICE
+  let recognition = null;
+  let isListening = false;
+
+  function toggleVoice() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      showToast('Voice not supported — use manual input');
+      return;
+    }
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  }
+
+  function startListening() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      isListening = true;
+      document.getElementById('voiceBtn').classList.add('listening');
+      document.getElementById('voiceBtnText').textContent = 'Listening...';
+      document.getElementById('voiceStatus').textContent = 'Say: "500 calories, 40g protein"';
+    };
+
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      document.getElementById('voiceStatus').textContent = '"' + transcript + '"';
+      if (!parseInput(transcript)) {
+        showToast('Couldn\'t parse — try manual input');
+      }
+    };
+
+    recognition.onerror = () => {
+      showToast('Voice error — try again');
+      stopListening();
+    };
+
+    recognition.onend = () => stopListening();
+    recognition.start();
+  }
+
+  function stopListening() {
+    isListening = false;
+    if (recognition) recognition.stop();
+    document.getElementById('voiceBtn').classList.remove('listening');
+    document.getElementById('voiceBtnText').textContent = 'Hold to Speak';
+    setTimeout(() => {
+      document.getElementById('voiceStatus').textContent = '';
+    }, 2000);
+  }
+
+  // SETTINGS
+  function openSettings() {
+    document.getElementById('settingCal').value = state.goals.cal;
+    document.getElementById('settingProt').value = state.goals.prot;
+    document.getElementById('settingWater').value = state.goals.water;
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function closeSettings() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+
+  function closeSettingsOutside(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeSettings();
+  }
+
+  function saveSettings() {
+    state.goals.cal = parseInt(document.getElementById('settingCal').value) || 3200;
+    state.goals.prot = parseInt(document.getElementById('settingProt').value) || 190;
+    state.goals.water = parseInt(document.getElementById('settingWater').value) || 8;
+    saveState();
+    render();
+    closeSettings();
+    showToast('Goals saved');
+  }
+
+  function resetDay() {
+    if (confirm('Reset today\'s entries?')) {
+      state.totals = { cal: 0, prot: 0, water: 0 };
+      state.log = [];
+      saveState();
+      render();
+      closeSettings();
+      showToast('Day reset');
+    }
+  }
+
+  // TOAST
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // INIT
+  loadState();
+  render();
+</script>
+</body>
+</html>
