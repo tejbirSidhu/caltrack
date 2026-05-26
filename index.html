@@ -26,6 +26,15 @@
       --radius: 16px;
     }
 
+    body.light-mode {
+      --bg: #f5f5f5;
+      --bg2: #ffffff;
+      --bg3: #ebebeb;
+      --border: #dddddd;
+      --text: #111111;
+      --muted: #999;
+    }
+
     html, body {
       background: var(--bg);
       color: var(--text);
@@ -43,7 +52,6 @@
       padding: env(safe-area-inset-top, 20px) 0 env(safe-area-inset-bottom, 20px);
     }
 
-    /* HEADER */
     .header {
       padding: 24px 24px 0;
       display: flex;
@@ -83,7 +91,6 @@
 
     .settings-btn:active { transform: scale(0.94); }
 
-    /* MAIN SCROLL */
     .scroll-area {
       flex: 1;
       overflow-y: auto;
@@ -93,7 +100,6 @@
       gap: 16px;
     }
 
-    /* METRIC CARD */
     .metric-card {
       background: var(--bg2);
       border: 1px solid var(--border);
@@ -163,7 +169,6 @@
       margin-left: 2px;
     }
 
-    /* PROGRESS BAR */
     .progress-track {
       height: 6px;
       background: var(--bg3);
@@ -187,7 +192,6 @@
       text-align: right;
     }
 
-    /* LOG */
     .section-label {
       font-family: 'DM Mono', monospace;
       font-size: 10px;
@@ -238,9 +242,7 @@
       gap: 10px;
     }
 
-    .log-vals {
-      text-align: right;
-    }
+    .log-vals { text-align: right; }
 
     .log-cal {
       font-size: 14px;
@@ -276,7 +278,6 @@
       letter-spacing: 1px;
     }
 
-    /* VOICE BUTTON */
     .voice-area {
       padding: 0 24px 24px;
     }
@@ -314,10 +315,8 @@
     }
 
     .voice-btn:active { transform: scale(0.97); }
-
     .mic-icon { font-size: 22px; }
 
-    /* MANUAL INPUT */
     .manual-area {
       padding: 0 24px 16px;
       display: flex;
@@ -356,7 +355,6 @@
 
     .manual-submit:active { transform: scale(0.95); }
 
-    /* TOAST */
     .toast {
       position: fixed;
       bottom: 100px;
@@ -381,7 +379,6 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* SETTINGS MODAL */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -415,9 +412,7 @@
       margin-bottom: 20px;
     }
 
-    .modal-section {
-      margin-bottom: 20px;
-    }
+    .modal-section { margin-bottom: 20px; }
 
     .modal-label {
       font-family: 'DM Mono', monospace;
@@ -493,7 +488,6 @@
 
   <div class="scroll-area" id="scrollArea">
 
-    <!-- CALORIES CARD -->
     <div class="metric-card" style="--accent-color: #e8ff47">
       <div class="metric-top">
         <span class="metric-name">Calories</span>
@@ -511,7 +505,6 @@
       <div class="progress-pct" id="calPct">0%</div>
     </div>
 
-    <!-- PROTEIN CARD -->
     <div class="metric-card" style="--accent-color: #47ffc8">
       <div class="metric-top">
         <span class="metric-name">Protein</span>
@@ -529,7 +522,6 @@
       <div class="progress-pct" id="protPct">0%</div>
     </div>
 
-    <!-- WATER CARD -->
     <div class="metric-card" style="--accent-color: #47b8ff">
       <div class="metric-top">
         <span class="metric-name">Water</span>
@@ -538,8 +530,8 @@
       <div class="metric-values">
         <span class="metric-current" id="waterCurrent">0</span>
         <span class="metric-sep">/</span>
-        <span class="metric-goal" id="waterGoal">8</span>
-        <span class="metric-unit">glasses</span>
+        <span class="metric-goal" id="waterGoal">110</span>
+        <span class="metric-unit">oz</span>
       </div>
       <div class="progress-track">
         <div class="progress-fill" id="waterBar" style="width:0%; background:#47b8ff"></div>
@@ -547,7 +539,6 @@
       <div class="progress-pct" id="waterPct">0%</div>
     </div>
 
-    <!-- LOG -->
     <div class="section-label">Today's Log</div>
     <div class="log-list" id="logList">
       <div class="empty-log" id="emptyLog">no entries yet</div>
@@ -555,13 +546,11 @@
 
   </div>
 
-  <!-- MANUAL INPUT -->
   <div class="manual-area">
     <input class="manual-input" id="manualInput" placeholder="500 cal, 40g protein" />
     <button class="manual-submit" onclick="parseManual()">Add</button>
   </div>
 
-  <!-- VOICE BUTTON -->
   <div class="voice-area">
     <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
       <span class="mic-icon">🎙</span>
@@ -572,10 +561,8 @@
 
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- SETTINGS MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeSettingsOutside(event)">
   <div class="modal">
     <div class="modal-title">Settings</div>
@@ -594,8 +581,8 @@
       </div>
       <div class="goal-row">
         <span class="goal-label-text">Water</span>
-        <input class="goal-input" id="settingWater" type="number" placeholder="8" />
-        <span style="font-family:DM Mono,monospace;font-size:12px;color:var(--muted)">glasses</span>
+        <input class="goal-input" id="settingWater" type="number" placeholder="110" />
+        <span style="font-family:DM Mono,monospace;font-size:12px;color:var(--muted)">oz</span>
       </div>
     </div>
 
@@ -606,24 +593,27 @@
 </div>
 
 <script>
-  // STATE
   let state = {
-    goals: { cal: 3200, prot: 190, water: 8 },
+    goals: { cal: 3200, prot: 190, water: 110 },
     totals: { cal: 0, prot: 0, water: 0 },
     log: [],
-    lastReset: new Date().toDateString()
+    lastReset: new Date().toISOString()
   };
 
-  // LOAD
   function loadState() {
     const saved = localStorage.getItem('trackState');
     if (saved) {
       state = JSON.parse(saved);
-      // Auto reset at midnight
-      if (state.lastReset !== new Date().toDateString()) {
+      const now = new Date();
+      const resetHour = 2;
+      const todayReset = new Date(now);
+      if (now.getHours() < resetHour) todayReset.setDate(todayReset.getDate() - 1);
+      todayReset.setHours(resetHour, 0, 0, 0);
+      const lastReset = new Date(state.lastReset);
+      if (lastReset < todayReset) {
         state.totals = { cal: 0, prot: 0, water: 0 };
         state.log = [];
-        state.lastReset = new Date().toDateString();
+        state.lastReset = new Date().toISOString();
         saveState();
       }
     }
@@ -633,35 +623,28 @@
     localStorage.setItem('trackState', JSON.stringify(state));
   }
 
-  // RENDER
   function render() {
-    // Date
     document.getElementById('dateLabel').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
-    // Calories
     document.getElementById('calCurrent').textContent = state.totals.cal;
     document.getElementById('calGoal').textContent = state.goals.cal;
     const calPct = Math.min(100, Math.round((state.totals.cal / state.goals.cal) * 100));
     document.getElementById('calBar').style.width = calPct + '%';
     document.getElementById('calPct').textContent = calPct + '%';
 
-    // Protein
     document.getElementById('protCurrent').textContent = state.totals.prot;
     document.getElementById('protGoal').textContent = state.goals.prot;
     const protPct = Math.min(100, Math.round((state.totals.prot / state.goals.prot) * 100));
     document.getElementById('protBar').style.width = protPct + '%';
     document.getElementById('protPct').textContent = protPct + '%';
 
-    // Water
     document.getElementById('waterCurrent').textContent = state.totals.water;
     document.getElementById('waterGoal').textContent = state.goals.water;
     const waterPct = Math.min(100, Math.round((state.totals.water / state.goals.water) * 100));
     document.getElementById('waterBar').style.width = waterPct + '%';
     document.getElementById('waterPct').textContent = waterPct + '%';
 
-    // Log
     const logList = document.getElementById('logList');
-    const emptyLog = document.getElementById('emptyLog');
     if (state.log.length === 0) {
       logList.innerHTML = '<div class="empty-log" id="emptyLog">no entries yet</div>';
     } else {
@@ -675,7 +658,7 @@
             <div class="log-vals">
               ${item.cal ? `<div class="log-cal">${item.cal} kcal</div>` : ''}
               ${item.prot ? `<div class="log-prot">${item.prot}g protein</div>` : ''}
-              ${item.water ? `<div class="log-prot" style="color:#47b8ff">${item.water} glass${item.water > 1 ? 'es' : ''}</div>` : ''}
+              ${item.water ? `<div class="log-prot" style="color:#47b8ff">${item.water} oz</div>` : ''}
             </div>
             <button class="log-delete" onclick="deleteEntry(${state.log.length - 1 - i})">✕</button>
           </div>
@@ -684,7 +667,6 @@
     }
   }
 
-  // ADD ENTRY
   function addEntry(cal, prot, water, desc) {
     const now = new Date();
     const time = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
@@ -694,7 +676,7 @@
     state.log.push({ cal, prot, water, desc, time });
     saveState();
     render();
-    showToast(`Added ${cal ? cal + ' cal' : ''}${prot ? ' · ' + prot + 'g protein' : ''}${water ? ' · ' + water + ' water' : ''}`);
+    showToast(`Added ${cal ? cal + ' cal' : ''}${prot ? ' · ' + prot + 'g protein' : ''}${water ? ' · ' + water + ' oz water' : ''}`);
   }
 
   function deleteEntry(index) {
@@ -707,23 +689,19 @@
     render();
   }
 
-  // PARSE INPUT
   function parseInput(text) {
     text = text.toLowerCase().trim();
     let cal = 0, prot = 0, water = 0;
 
-    // calories: "500 cal", "500 calories", "500kcal"
     const calMatch = text.match(/(\d+)\s*(cal(?:ories)?|kcal)/i);
     if (calMatch) cal = parseInt(calMatch[1]);
 
-    // protein: "40g protein", "40 grams protein", "40 protein"
     const protMatch = text.match(/(\d+)\s*g(?:rams?)?\s*(?:of\s*)?protein/i) || text.match(/(\d+)\s*protein/i);
     if (protMatch) prot = parseInt(protMatch[1]);
 
-    // water: "2 glasses", "1 glass", "water"
-    const waterMatch = text.match(/(\d+)\s*glass(?:es)?/i);
+    const waterMatch = text.match(/(\d+)\s*oz/i);
     if (waterMatch) water = parseInt(waterMatch[1]);
-    else if (text.includes('water') && !waterMatch) water = 1;
+    else if (text.includes('water') && !waterMatch) water = 8;
 
     if (cal || prot || water) {
       addEntry(cal, prot, water, text.length > 40 ? text.slice(0, 40) + '...' : text);
@@ -747,7 +725,6 @@
     if (e.key === 'Enter') parseManual();
   });
 
-  // VOICE
   let recognition = null;
   let isListening = false;
 
@@ -804,7 +781,6 @@
     }, 2000);
   }
 
-  // SETTINGS
   function openSettings() {
     document.getElementById('settingCal').value = state.goals.cal;
     document.getElementById('settingProt').value = state.goals.prot;
@@ -823,7 +799,7 @@
   function saveSettings() {
     state.goals.cal = parseInt(document.getElementById('settingCal').value) || 3200;
     state.goals.prot = parseInt(document.getElementById('settingProt').value) || 190;
-    state.goals.water = parseInt(document.getElementById('settingWater').value) || 8;
+    state.goals.water = parseInt(document.getElementById('settingWater').value) || 110;
     saveState();
     render();
     closeSettings();
@@ -841,7 +817,6 @@
     }
   }
 
-  // TOAST
   let toastTimer;
   function showToast(msg) {
     const t = document.getElementById('toast');
@@ -851,9 +826,19 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
   }
 
-  // INIT
+  function applyTheme() {
+    const hour = new Date().getHours();
+    if (hour >= 7 && hour < 19) {
+      document.body.classList.add('light-mode');
+    } else {
+      document.body.classList.remove('light-mode');
+    }
+  }
+
   loadState();
   render();
+  applyTheme();
+  setInterval(applyTheme, 60000);
 </script>
 </body>
 </html>
