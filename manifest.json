@@ -2,7 +2,7 @@
   "name": "Track.",
   "short_name": "Track",
   "description": "Clean calorie and macro tracker",
-  "start_url": "/",
+  "start_url": "/caltrack/",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
