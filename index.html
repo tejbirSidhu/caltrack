@@ -699,9 +699,14 @@
     const protMatch = text.match(/(\d+)\s*g(?:rams?)?\s*(?:of\s*)?protein/i) || text.match(/(\d+)\s*protein/i);
     if (protMatch) prot = parseInt(protMatch[1]);
 
-    const waterMatch = text.match(/(\d+)\s*oz/i);
-    if (waterMatch) water = parseInt(waterMatch[1]);
-    else if (text.includes('water') && !waterMatch) water = 8;
+    // FIX: match oz, ounce, or ounces — previously only matched "oz"
+    const waterMatch = text.match(/(\d+)\s*(?:oz|ounces?)/i);
+    if (waterMatch) {
+      water = parseInt(waterMatch[1]);
+    } else if (text.includes('water')) {
+      // Only fall back to 8 oz if no number + unit was found
+      water = 8;
+    }
 
     if (cal || prot || water) {
       addEntry(cal, prot, water, text.length > 40 ? text.slice(0, 40) + '...' : text);
