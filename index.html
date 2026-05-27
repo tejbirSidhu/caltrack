@@ -94,7 +94,7 @@
     .scroll-area {
       flex: 1;
       overflow-y: auto;
-      padding: 20px 24px;
+      padding: 20px 24px 24px;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -192,6 +192,94 @@
       text-align: right;
     }
 
+    /* ── Input area (now inline in scroll) ── */
+    .input-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .manual-area {
+      display: flex;
+      gap: 8px;
+    }
+
+    .manual-input {
+      flex: 1;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .manual-input::placeholder { color: var(--muted); }
+    .manual-input:focus { border-color: var(--accent); }
+
+    .manual-submit {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0 18px;
+      color: var(--accent);
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .manual-submit:active { transform: scale(0.95); }
+
+    .voice-btn {
+      width: 100%;
+      height: 64px;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #0a0a0a;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .voice-btn.listening {
+      background: var(--red);
+      color: white;
+      animation: pulse 1s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 92, 92, 0.4); }
+      50% { box-shadow: 0 0 0 12px rgba(255, 92, 92, 0); }
+    }
+
+    .voice-btn:active { transform: scale(0.97); }
+    .mic-icon { font-size: 20px; }
+
+    .voice-status {
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      min-height: 16px;
+    }
+
+    /* ── Log ── */
     .section-label {
       font-family: 'DM Mono', monospace;
       font-size: 10px;
@@ -278,86 +366,10 @@
       letter-spacing: 1px;
     }
 
-    .voice-area {
-      padding: 0 24px 24px;
-    }
-
-    .voice-btn {
-      width: 100%;
-      height: 72px;
-      background: var(--accent);
-      border: none;
-      border-radius: var(--radius);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      cursor: pointer;
-      font-family: 'Syne', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
-      color: #0a0a0a;
-      letter-spacing: 0.5px;
-      transition: all 0.2s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .voice-btn.listening {
-      background: var(--red);
-      color: white;
-      animation: pulse 1s ease infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 92, 92, 0.4); }
-      50% { box-shadow: 0 0 0 12px rgba(255, 92, 92, 0); }
-    }
-
-    .voice-btn:active { transform: scale(0.97); }
-    .mic-icon { font-size: 22px; }
-
-    .manual-area {
-      padding: 0 24px 16px;
-      display: flex;
-      gap: 8px;
-    }
-
-    .manual-input {
-      flex: 1;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 16px;
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .manual-input::placeholder { color: var(--muted); }
-    .manual-input:focus { border-color: var(--accent); }
-
-    .manual-submit {
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 0 18px;
-      color: var(--accent);
-      font-family: 'Syne', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-
-    .manual-submit:active { transform: scale(0.95); }
-
+    /* ── Toast ── */
     .toast {
       position: fixed;
-      bottom: 100px;
+      bottom: 32px;
       left: 50%;
       transform: translateX(-50%) translateY(20px);
       background: var(--bg3);
@@ -379,6 +391,7 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    /* ── Settings Modal ── */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -464,15 +477,6 @@
 
     .modal-btn-primary { background: var(--accent); color: #0a0a0a; }
     .modal-btn-danger { background: var(--bg3); color: var(--red); border: 1px solid var(--border); }
-
-    .voice-status {
-      text-align: center;
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      color: var(--muted);
-      padding: 4px 0 0;
-      min-height: 18px;
-    }
   </style>
 </head>
 <body>
@@ -486,8 +490,9 @@
     <button class="settings-btn" onclick="openSettings()">⚙️</button>
   </div>
 
-  <div class="scroll-area" id="scrollArea">
+  <div class="scroll-area">
 
+    <!-- Metrics -->
     <div class="metric-card" style="--accent-color: #e8ff47">
       <div class="metric-top">
         <span class="metric-name">Calories</span>
@@ -539,26 +544,26 @@
       <div class="progress-pct" id="waterPct">0%</div>
     </div>
 
+    <!-- Input block — right below water -->
+    <div class="input-block">
+      <div class="manual-area">
+        <input class="manual-input" id="manualInput" placeholder="500 cal, 40g protein" />
+        <button class="manual-submit" onclick="parseManual()">Add</button>
+      </div>
+      <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
+        <span class="mic-icon">🎙</span>
+        <span id="voiceBtnText">Hold to Speak</span>
+      </button>
+      <div class="voice-status" id="voiceStatus"></div>
+    </div>
+
+    <!-- Log — below input -->
     <div class="section-label">Today's Log</div>
     <div class="log-list" id="logList">
       <div class="empty-log" id="emptyLog">no entries yet</div>
     </div>
 
   </div>
-
-  <div class="manual-area">
-    <input class="manual-input" id="manualInput" placeholder="500 cal, 40g protein" />
-    <button class="manual-submit" onclick="parseManual()">Add</button>
-  </div>
-
-  <div class="voice-area">
-    <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
-      <span class="mic-icon">🎙</span>
-      <span id="voiceBtnText">Hold to Speak</span>
-    </button>
-    <div class="voice-status" id="voiceStatus"></div>
-  </div>
-
 </div>
 
 <div class="toast" id="toast"></div>
@@ -699,12 +704,10 @@
     const protMatch = text.match(/(\d+)\s*g(?:rams?)?\s*(?:of\s*)?protein/i) || text.match(/(\d+)\s*protein/i);
     if (protMatch) prot = parseInt(protMatch[1]);
 
-    // FIX: match oz, ounce, or ounces — previously only matched "oz"
     const waterMatch = text.match(/(\d+)\s*(?:oz|ounces?)/i);
     if (waterMatch) {
       water = parseInt(waterMatch[1]);
     } else if (text.includes('water')) {
-      // Only fall back to 8 oz if no number + unit was found
       water = 8;
     }
 
@@ -738,11 +741,7 @@
       showToast('Voice not supported — use manual input');
       return;
     }
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
+    if (isListening) { stopListening(); } else { startListening(); }
   }
 
   function startListening() {
@@ -762,16 +761,10 @@
     recognition.onresult = (e) => {
       const transcript = e.results[0][0].transcript;
       document.getElementById('voiceStatus').textContent = '"' + transcript + '"';
-      if (!parseInput(transcript)) {
-        showToast('Couldn\'t parse — try manual input');
-      }
+      if (!parseInput(transcript)) showToast('Couldn\'t parse — try manual input');
     };
 
-    recognition.onerror = () => {
-      showToast('Voice error — try again');
-      stopListening();
-    };
-
+    recognition.onerror = () => { showToast('Voice error — try again'); stopListening(); };
     recognition.onend = () => stopListening();
     recognition.start();
   }
@@ -781,9 +774,7 @@
     if (recognition) recognition.stop();
     document.getElementById('voiceBtn').classList.remove('listening');
     document.getElementById('voiceBtnText').textContent = 'Hold to Speak';
-    setTimeout(() => {
-      document.getElementById('voiceStatus').textContent = '';
-    }, 2000);
+    setTimeout(() => { document.getElementById('voiceStatus').textContent = ''; }, 2000);
   }
 
   function openSettings() {
@@ -793,56 +784,38 @@
     document.getElementById('modalOverlay').classList.add('open');
   }
 
-  function closeSettings() {
-    document.getElementById('modalOverlay').classList.remove('open');
-  }
-
-  function closeSettingsOutside(e) {
-    if (e.target === document.getElementById('modalOverlay')) closeSettings();
-  }
+  function closeSettings() { document.getElementById('modalOverlay').classList.remove('open'); }
+  function closeSettingsOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeSettings(); }
 
   function saveSettings() {
-    state.goals.cal = parseInt(document.getElementById('settingCal').value) || 3200;
-    state.goals.prot = parseInt(document.getElementById('settingProt').value) || 190;
+    state.goals.cal   = parseInt(document.getElementById('settingCal').value)   || 3200;
+    state.goals.prot  = parseInt(document.getElementById('settingProt').value)  || 190;
     state.goals.water = parseInt(document.getElementById('settingWater').value) || 110;
-    saveState();
-    render();
-    closeSettings();
-    showToast('Goals saved');
+    saveState(); render(); closeSettings(); showToast('Goals saved');
   }
 
   function resetDay() {
     if (confirm('Reset today\'s entries?')) {
       state.totals = { cal: 0, prot: 0, water: 0 };
       state.log = [];
-      saveState();
-      render();
-      closeSettings();
-      showToast('Day reset');
+      saveState(); render(); closeSettings(); showToast('Day reset');
     }
   }
 
   let toastTimer;
   function showToast(msg) {
     const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
+    t.textContent = msg; t.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
   }
 
   function applyTheme() {
     const hour = new Date().getHours();
-    if (hour >= 7 && hour < 19) {
-      document.body.classList.add('light-mode');
-    } else {
-      document.body.classList.remove('light-mode');
-    }
+    document.body.classList.toggle('light-mode', hour >= 7 && hour < 19);
   }
 
-  loadState();
-  render();
-  applyTheme();
+  loadState(); render(); applyTheme();
   setInterval(applyTheme, 60000);
 </script>
 </body>
